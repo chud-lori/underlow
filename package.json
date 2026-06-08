@@ -4,8 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node tests/engine.test.mjs && node tests/mission-checks.test.mjs && node tests/ui-smoke.mjs && node tests/server-api.test.mjs",
-    "server": "node server/index.js",
+    "test": "node tests/engine.test.mjs && node tests/mission-checks.test.mjs && node tests/ui-smoke.mjs && go test ./server",
+    "server": "go run ./server",
     "serve": "python3 -m http.server 8120"
   }
 }

@@ -56,7 +56,7 @@ Then open:
 http://127.0.0.1:8121/
 ```
 
-Local runs require `clang` on your machine. Docker installs `clang` inside the image.
+Local runs require Go and `clang` on your machine. Docker installs `clang` inside the image.
 
 ## Run With Docker
 
