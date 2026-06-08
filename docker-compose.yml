@@ -1,0 +1,11 @@
+services:
+  underlow:
+    build:
+      context: .
+    image: underlow:local
+    ports:
+      - "8121:8121"
+    environment:
+      HOST: 0.0.0.0
+      PORT: 8121
+      NODE_ENV: production

@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Underlow</title>
+    <link rel="stylesheet" href="./src/styles.css">
+  </head>
+  <body>
+    <main id="app" class="app-shell">
+      <section class="topbar" aria-label="Application header">
+        <div>
+          <p class="eyebrow">Learn by running tiny programs</p>
+          <h1>Underlow</h1>
+        </div>
+        <div class="topbar-actions">
+          <nav class="app-tabs" aria-label="App views">
+            <button id="learn-tab" type="button" data-view-tab="learn" aria-selected="true">Learn</button>
+            <button id="c-playground-tab" type="button" data-view-tab="c-playground" aria-selected="false">C Playground</button>
+            <button id="asm-playground-tab" type="button" data-view-tab="asm-playground" aria-selected="false">ASM Playground</button>
+          </nav>
+          <div class="status-pill" id="status-pill">Ready</div>
+        </div>
+      </section>
+
+      <section id="learn-view" class="app-view" data-active="true" aria-label="Learn">
+        <section class="mission-hud" aria-label="Mission command">
+          <div>
+            <label for="lesson-select">1. Choose a lesson</label>
+            <select id="lesson-select"></select>
+          </div>
+          <div class="lesson-copy">
+            <h2 id="lesson-title">Loading mission</h2>
+            <p id="lesson-objective"></p>
+          </div>
+          <div class="scoreboard" aria-label="Progress">
+            <div><span id="score-value">0</span><small>score</small></div>
+            <div><span id="solved-value">0</span><small>solved</small></div>
+          </div>
+          <div class="progress-track" aria-label="Campaign progress">
+            <span id="progress-fill"></span>
+          </div>
+        </section>
+
+        <section class="journey-panel" aria-label="Learning journey">
+          <div class="journey-step" data-active="true">
+            <span>1</span>
+            <strong>Choose</strong>
+            <small>Start with Register Spark.</small>
+          </div>
+          <div class="journey-step">
+            <span>2</span>
+            <strong>Edit</strong>
+            <small>Fix the code to match the target.</small>
+          </div>
+          <div class="journey-step">
+            <span>3</span>
+            <strong>Run</strong>
+            <small>Watch the machine panels change.</small>
+          </div>
+          <div class="journey-step">
+            <span>4</span>
+            <strong>Clear</strong>
+            <small>Earn points and move forward.</small>
+          </div>
+        </section>
+
+        <section class="mission-board" aria-label="Mission board">
+          <div class="board-heading">
+            <div>
+              <p class="eyebrow">Lesson path</p>
+              <h2>Pick one, then run it</h2>
+            </div>
+            <p id="board-count">0 missions cleared</p>
+          </div>
+          <div id="mission-board" class="mission-cards"></div>
+        </section>
+
+        <section class="lab-grid">
+          <section class="editor-panel" aria-label="Code editor">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">2. Edit or run</p>
+              <h2>Program</h2>
+            </div>
+            <div class="mode-switcher" aria-label="Language mode">
+              <span id="mode-label">ASM mode</span>
+              <div class="mode-toggle">
+                <button id="asm-mode" type="button" aria-pressed="true">ASM</button>
+                <button id="c-mode" type="button" aria-pressed="false">C</button>
+              </div>
+            </div>
+            <button id="reset-code" class="ghost-button" type="button">Reset code</button>
+          </div>
+          <textarea id="code-editor" spellcheck="false" aria-label="Code editor"></textarea>
+          <div class="controls" aria-label="Execution controls">
+            <button id="run-button" type="button">Run</button>
+            <button id="pause-button" type="button">Pause</button>
+            <button id="step-button" type="button">Step</button>
+            <button id="reset-button" type="button">Reset</button>
+            <label class="speed-control" for="speed-slider">
+              Speed
+              <input id="speed-slider" type="range" min="1" max="10" value="5">
+            </label>
+          </div>
+          <div id="mission-feedback" class="mission-feedback" data-state="idle" aria-live="polite">
+            <strong>Start with one step</strong>
+            <span>Press Step to run one instruction and see what changed.</span>
+          </div>
+          <div class="coach-panel" aria-label="Coach">
+            <div>
+              <p class="eyebrow">Coach</p>
+              <strong id="coach-title">Your first move</strong>
+              <span id="coach-copy">Read the target, edit the code, then press Run.</span>
+            </div>
+            <button id="hint-button" class="ghost-button" type="button">Hint</button>
+          </div>
+          <pre id="message-log" class="message-log" aria-live="polite"></pre>
+          <details class="assembly-preview">
+            <summary>Generated assembly</summary>
+            <pre id="assembly-preview"></pre>
+          </details>
+          </section>
+
+          <section class="machine-panel" aria-label="Machine state">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">CPU</p>
+              <h2>Registers</h2>
+            </div>
+            <div class="pc-chip">PC <span id="pc-value">0</span></div>
+          </div>
+          <div id="registers" class="register-grid"></div>
+          <div class="flag-row" id="flags"></div>
+          <div class="instruction-card">
+            <p class="eyebrow">Current instruction</p>
+            <code id="current-instruction">HALT</code>
+          </div>
+          </section>
+
+          <section class="display-panel" aria-label="Pixel display">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Output</p>
+              <h2>Screen</h2>
+            </div>
+            <button id="clear-button" class="ghost-button" type="button">Clear</button>
+          </div>
+          <canvas id="pixel-display" width="320" height="240" aria-label="Machine pixel display"></canvas>
+          </section>
+
+          <section class="memory-panel" aria-label="Memory">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">RAM</p>
+              <h2>Memory</h2>
+            </div>
+            <div class="legend">
+              <span><i class="read"></i> Read</span>
+              <span><i class="write"></i> Write</span>
+            </div>
+          </div>
+          <div id="memory-grid" class="memory-grid"></div>
+          </section>
+
+          <section class="explain-panel" aria-label="Explanation">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">What just happened</p>
+              <h2>Step Notes</h2>
+            </div>
+          </div>
+          <p id="lesson-explanation"></p>
+          <ol id="change-list" class="change-list"></ol>
+          </section>
+        </section>
+      </section>
+
+      <section id="c-playground-view" class="app-view playground-grid" data-active="false" aria-label="C Playground">
+        <section class="editor-panel playground-editor" aria-label="C editor">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">C Playground</p>
+              <h2>C Editor</h2>
+            </div>
+            <button id="c-compile-button" type="button">Compile</button>
+          </div>
+          <textarea id="c-playground-editor" spellcheck="false" aria-label="C playground editor"></textarea>
+        </section>
+
+        <section class="machine-panel playground-output" aria-label="Generated assembly">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Compiler output</p>
+              <h2>Generated Assembly</h2>
+            </div>
+            <div id="c-compiler-source" class="pc-chip">Local</div>
+          </div>
+          <pre id="c-generated-assembly" class="output-pre">; compile C to see assembly</pre>
+        </section>
+
+        <section class="explain-panel playground-output" aria-label="C diagnostics">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Diagnostics</p>
+              <h2>Compiler Notes</h2>
+            </div>
+          </div>
+          <pre id="c-diagnostics" class="message-log">Ready.</pre>
+        </section>
+      </section>
+
+      <section id="asm-playground-view" class="app-view playground-grid asm-playground-grid" data-active="false" aria-label="ASM Playground">
+        <section class="editor-panel playground-editor" aria-label="ASM editor">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">ASM Playground</p>
+              <h2>ASM Editor</h2>
+            </div>
+            <button id="asm-playground-reset-code" class="ghost-button" type="button">Reset code</button>
+          </div>
+          <textarea id="asm-playground-editor" spellcheck="false" aria-label="ASM playground editor"></textarea>
+          <div class="controls" aria-label="ASM execution controls">
+            <button id="asm-playground-run" type="button">Run</button>
+            <button id="asm-playground-pause" type="button">Pause</button>
+            <button id="asm-playground-step" type="button">Step</button>
+            <button id="asm-playground-reset" type="button">Reset</button>
+          </div>
+          <pre id="asm-playground-diagnostics" class="message-log" aria-live="polite"></pre>
+        </section>
+
+        <section class="machine-panel" aria-label="ASM machine state">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">CPU</p>
+              <h2>Registers</h2>
+            </div>
+            <div class="pc-chip">PC <span id="asm-playground-pc">0</span></div>
+          </div>
+          <div id="asm-playground-registers" class="register-grid"></div>
+          <div class="flag-row" id="asm-playground-flags"></div>
+          <div class="instruction-card">
+            <p class="eyebrow">Current instruction</p>
+            <code id="asm-playground-instruction">HALT</code>
+          </div>
+        </section>
+
+        <section class="display-panel" aria-label="ASM pixel display">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Output</p>
+              <h2>Screen</h2>
+            </div>
+            <button id="asm-playground-clear" class="ghost-button" type="button">Clear</button>
+          </div>
+          <canvas id="asm-playground-display" width="320" height="240" aria-label="ASM playground pixel display"></canvas>
+        </section>
+
+        <section class="memory-panel" aria-label="ASM memory">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">RAM</p>
+              <h2>Memory</h2>
+            </div>
+            <div class="legend">
+              <span><i class="read"></i> Read</span>
+              <span><i class="write"></i> Write</span>
+            </div>
+          </div>
+          <div id="asm-playground-memory" class="memory-grid"></div>
+        </section>
+      </section>
+    </main>
+
+    <script type="module" src="./src/app.js"></script>
+  </body>
+</html>
